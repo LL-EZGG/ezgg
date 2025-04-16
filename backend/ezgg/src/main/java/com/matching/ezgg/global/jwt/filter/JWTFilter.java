@@ -1,14 +1,13 @@
 package com.matching.ezgg.global.jwt.filter;
 
 import java.io.IOException;
-import java.io.NotActiveException;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
-import org.springframework.web.servlet.HandlerExceptionResolver;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.matching.ezgg.global.jwt.dto.CustomUserDetails;
@@ -29,6 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RequiredArgsConstructor
+@Component
 public class JWTFilter extends OncePerRequestFilter {
 
 	private final JWTUtil jwtUtil;

@@ -5,6 +5,7 @@ import static org.springframework.boot.autoconfigure.security.servlet.PathReques
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -20,6 +21,7 @@ import com.matching.ezgg.global.jwt.filter.JWTFilter;
 import com.matching.ezgg.global.jwt.filter.JWTUtil;
 import com.matching.ezgg.global.jwt.filter.LoginFilter;
 import com.matching.ezgg.global.jwt.repository.RefreshRepository;
+import com.matching.ezgg.global.jwt.sevice.CustomUserDetailService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -28,8 +30,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
+	private final JWTFilter jwtFilter;
 	private final JWTUtil jwtUtil;
-	private final AuthenticationConfiguration authenticationConfiguration;
 	private final RefreshRepository refreshRepository;
 
 	@Bean
@@ -51,7 +53,9 @@ public class SecurityConfig {
 	}
 
 	@Bean
-	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+	public SecurityFilterChain filterChain(HttpSecurity http, AuthenticationManager authenticationManager) throws Exception {
+		LoginFilter loginFilter = new LoginFilter(jwtUtil, refreshRepository);
+		loginFilter.setAuthenticationManager(authenticationManager);
 
 		// 기본 설정 비활성화
 		http
@@ -69,10 +73,8 @@ public class SecurityConfig {
 			session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
 		// JWT 필터 적용
-		http.addFilterBefore(new JWTFilter(jwtUtil), LoginFilter.class)
-			.addFilterAt(new LoginFilter(jwtUtil, authenticationManager(authenticationConfiguration), refreshRepository),
-				UsernamePasswordAuthenticationFilter.class);
-
+		http.addFilterBefore(jwtFilter, LoginFilter.class)
+			.addFilterAt(loginFilter, UsernamePasswordAuthenticationFilter.class);
 		return http.build();
 	}
 

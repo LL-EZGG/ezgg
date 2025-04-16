@@ -13,6 +13,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.stereotype.Component;
 import org.springframework.util.StreamUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -36,7 +37,6 @@ import lombok.extern.slf4j.Slf4j;
 public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
 	private final JWTUtil jwtUtil;
-	private final AuthenticationManager authenticationManager;
 	private final RefreshRepository refreshRepository;
 
 	// 로그인 요청을 처리하는 메서드
@@ -64,7 +64,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(memberId, password);
 
-		return authenticationManager.authenticate(token);
+		return this.getAuthenticationManager().authenticate(token);
 	}
 
 	// 로그인 성공 시 호출되는 메서드
@@ -81,6 +81,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
 		String accessToken = jwtUtil.createJwt("access", memberId, role, 60 * 60 * 1000L); // 1시간 유효
 		String refreshToken = jwtUtil.createJwt("refresh", memberId, role, 24 * 60 * 60 * 1000L); // 1일 유효
+		// todo jwtUtil로 옮기기 - 주입을 JwtUtil만 받을 수 있음
 		addRefreshEntity(memberId, refreshToken, 24 * 60 * 60 * 1000L);
 
 		response.setHeader("Authorization", accessToken);
