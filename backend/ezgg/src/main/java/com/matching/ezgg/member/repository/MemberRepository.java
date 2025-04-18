@@ -12,16 +12,8 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
 	Optional<Member> findByEmail(String email);
 
-	Optional<Member> findByRiotUsername(String riotUsername);
-
-	Optional<Member> findByRiotTag(String riotTag);
-
 	boolean existsByMemberUsername(String memberUsername);
 
 	boolean existsByEmail(String email);
-
-	boolean existsByRiotUsername(String riotUsername);
-
-	boolean existsByRiotTag(String riotTag);
 }
 
